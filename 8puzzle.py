@@ -110,65 +110,65 @@ def is_solvable_board(board: np.ndarray):
 
     return is_solvable
 
+if __name__ == "__main__":
+    #get number of elements
+    element_count = int(input())
+    #get 0 index
+    zero_index = int(input())
 
-#get number of elements
-element_count = int(input())
-#get 0 index
-zero_index = int(input())
+    #get row and column size
+    row_count = int(math.sqrt(element_count+1))
 
-#get row and column size
-row_count = int(math.sqrt(element_count+1))
+    if zero_index == -1:
+        zero_index = element_count
 
-if zero_index == -1:
-    zero_index = element_count
+    initial_board = list()
 
-initial_board = list()
+    #populate the initial board
+    while len(initial_board) <= element_count:
+        input_line = input()
+        elements = input_line.split()
+        initial_board.extend([int(element) for element in elements ])
 
-#populate the initial board
-while len(initial_board) <= element_count:
-    input_line = input()
-    elements = input_line.split()
-    initial_board.extend([int(element) for element in elements ])
+    start = timeit.default_timer()
+    #index of the current element
+    index = 0
+    #number to be added
+    number = 1
+    goal_board = list()
 
-start = timeit.default_timer()
-#index of the current element
-index = 0
-#number to be added
-number = 1
-goal_board = list()
+    #populate goal board
+    while index <= element_count:
+        if index == zero_index:
+            goal_board.append(0)
+        else:
+            goal_board.append(number)
+            number += 1
+        index += 1
 
-#populate goal board
-while index <= element_count:
-    if index == zero_index:
-        goal_board.append(0)
+    #convert from list to numpy array
+    initial_board = np.array(initial_board)
+    goal_board = np.array(goal_board)
+
+    #convert from 1d array to 2d array
+    initial_board = initial_board.reshape((row_count,row_count))
+    goal_board = goal_board.reshape((row_count, row_count))
+
+    #initialize states
+    initial_state = State(initial_board)
+    goal_state = State(goal_board)
+
+    is_solvable = is_solvable_board(initial_board)
+
+    end = 0.0
+
+    if is_solvable:
+        is_found, directions = IDA(initial_state,goal_state)
+        end = timeit.default_timer()
+        print(len(directions))
+        print(*directions, sep="\n")
     else:
-        goal_board.append(number)
-        number += 1
-    index += 1
+        end = timeit.default_timer()
+        print(-1)
 
-#convert from list to numpy array
-initial_board = np.array(initial_board)
-goal_board = np.array(goal_board)
-
-#convert from 1d array to 2d array
-initial_board = initial_board.reshape((row_count,row_count))
-goal_board = goal_board.reshape((row_count, row_count))
-
-#initialize states
-initial_state = State(initial_board)
-goal_state = State(goal_board)
-
-is_solvable = is_solvable_board(initial_board)
-
-end = 0.0
-
-if is_solvable:
-    is_found, directions = IDA(initial_state,goal_state)
-    end = timeit.default_timer()
-    print(len(directions))
-    print(*directions, sep="\n")
-else:
-    end = timeit.default_timer()
-    print(-1)
-
-print("Time: {} seconds", round(end-start,2))
+    print("Time: {} seconds".format(round(end-start,2)))
